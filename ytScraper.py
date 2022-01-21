@@ -1,7 +1,6 @@
 import os
 import json
 import urllib
-from selenium import webdriver
 from datetime import date
 from datetime import datetime
 
@@ -21,7 +20,7 @@ videoIDs = []
 
 api_service_name = "youtube"
 api_version = "v3"
-client_secrets_file = "YOUR_CLIENT_SECRETS_FILE.json"
+client_secrets_file = "client_secrets_file.json"
 
 # Disable OAuthlib's HTTPS verification when running locally.
 # *DO NOT* leave this option enabled in production.
@@ -60,15 +59,20 @@ def get_video_info(video_id):
     
 
 def look_for_new_videos(channel_id):
-    api_key = "YOUR_API_KEY"
+    api_key = "AIzaSyDoM7h_HGGpmefWqH7HjbM1iCrrzYtDhS8"
 
     base_search_url = "https://www.googleapis.com/youtube/v3/search?"
 
     url = base_search_url + ('key={}&channelId={}&part=snippet,id&order=date&maxResults=1'.format(api_key, channel_id))
     inp = urllib.request.urlopen(url)
     resp = json.load(inp)
+    vidID=''
 
-    vidID = resp['items'][0]['id']['videoId']
+    # print(resp['items'][0]['id']['videoId'])
+    try:
+        vidID = resp['items'][0]['id']['videoId']
+    except:
+        return 0
 
     video_exists = True
 
@@ -77,7 +81,7 @@ def look_for_new_videos(channel_id):
         if data['videoId'] != vidID:
             videoInfo = get_video_info(vidID)
             if videoInfo[1] == today.strftime('%Y-%m-%d'):
-                videoTitles.append(videoInfo[1])
+                videoTitles.append(videoInfo[0])
                 videoIDs.append(vidID)
                 video_exists = True
     if video_exists:
@@ -89,14 +93,17 @@ channels = getChannels()
 channelIDs = []
 channelTitles = []
 
-#print(channelsJson)
+#print(channels)
 
 if datetime.now().hour >= 6 and datetime.now().hour <= 21:
-    if datetime.now().minute == 0 or datetime.now().minute == 30:
+    if 0 == 0 or 30 == 30:
         for channel in channels["items"]:
             channelIDs.append(channel['snippet']['resourceId']['channelId'])
             channelTitles.append(channel['snippet']['title'])
         for channel in channelIDs:
             look_for_new_videos(channel)
-        print(videoTitles)
-        print(videoIDs)
+        # print(videoTitles)
+        # print(videoIDs)
+        for x in range (0, len(videoTitles)):
+            print(channelTitles[x] + " : " + videoTitles[x] + " : " + base_video_url + videoIDs[x])
+            print("\n")
